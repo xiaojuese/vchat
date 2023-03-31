@@ -1,3 +1,0 @@
-openai:
-  model:${OPENAI_MODEL:text-davinci-003}
-  apiKey:${OPENAI_API_KEY:你的apiKey}
