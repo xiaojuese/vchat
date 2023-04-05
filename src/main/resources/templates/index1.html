@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Page</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <style>
+    table {
+      border-collapse: none;
+      margin: 20px;
+    }
+    td {
+      padding: 5px;
+      border: none;
+    }
+    input {
+      width: 160%;
+      padding: 3px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      width: 80%;
+    }
+    button:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <table>
+    <tr>
+      <td><label for="prompt">主题:</label></td>
+      <td><input type="text" v-model="theme" id="prompt"></td>
+    </tr>
+    <tr>
+      <td>目的:</td>
+      <td><textarea type="text" v-model="purpose" style="width: 160%; padding: 3px; box-sizing: border-box;"></textarea></td>
+    </tr>
+    <tr>
+      <td>关键字:</td>
+      <td><input type="text" v-model="keywords"></td>
+    </tr>
+    <tr>
+      <td>字数限制:</td>
+      <td>
+        <select v-model="wordCount">
+          <option value="200">200</option>
+          <option value="300">300</option>
+          <option value="500">500</option>
+          <option value="1000" selected>1000</option>
+          <option value="2000">2000</option>
+          <option value="5000">5000</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <button  @click="fillData">{{importButtonText}}</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<button :disabled="isGenerating" @click="generateContent">{{buttonText}}</button>
+      </td>
+    </tr>
+  </table>
+  <div>
+    <table>
+      <tr>
+        <td>{{content}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      theme: '',
+      purpose: '',
+      keywords: '',
+      wordCount: '1000',
+      content: '',
+      isGenerating: false,
+      importButtonText:'导入样例数据',
+      buttonText: '点击生成'
+    },
+    methods: {
+      generateContent: function() {
+        var self = this;
+        self.isGenerating = true;
+        self.buttonText = '生成中...';
+        axios.get('/chat', {
+          params: {
+            theme: self.theme,
+            purpose: self.purpose,
+            keywords: self.keywords,
+            wordCount: self.wordCount
+          }
+        })
+                .then(function(response) {
+                  self.content = response.data.choices[0].message.content;
+                  self.isGenerating = false;
+                  self.buttonText = '点击生成';
+                })
+                .catch(function(error) {
+                  console.log(error);
+                  self.isGenerating = false;
+                  self.buttonText = '点击生成';
+                });
+      },
+      fillData: function() {
+        this.theme = '2023年北京电力局开放日';
+        this.purpose = '通过电力系统的开放日，让更多的民众了解电力保障的复杂性，以及通过宣导安全知识、了解安全事故案例，达到提升用电安全意识的目的。';
+        this.keywords = '举行日期今年5月1日、多个主题展览场馆、掌握电力安全知识、防范安全隐患、专家交流、电力专家答疑、日常用电技巧';
+      }
+    }
+  });
+</script>
+</body>
+</html>
